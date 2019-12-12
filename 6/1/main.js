@@ -24,8 +24,6 @@ orbits.forEach(orbit => {
   primary.addSatellite(satellite)
 })
 
-console.log()
-
 let index = 0
 let totalOrbits = 0
 let satellitesLeftOnCurrentLevel = 1
@@ -55,4 +53,3 @@ console.log(totalOrbits)
 function parseOrbit(orbit) {
   return orbit.split(')')
 }
-
