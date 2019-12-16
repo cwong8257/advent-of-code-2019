@@ -4,7 +4,7 @@ const path = require('path')
 const Moon = require('./Moon')
 const Planet = require('./Planet')
 
-const STEPS = 4686774924
+const STEPS = Infinity
 
 console.log(nBodyProblem())
 
@@ -17,19 +17,18 @@ function nBodyProblem () {
     return new Moon(moonNames[i], { x, y, z })
   })
 
-  const jupiter = new Planet('Jupiter')
+  const jupiter = new Planet('Jupiter', moons)
 
-  jupiter.addMoons(moons)
-  
   let i
   
   for (i = 0; i < STEPS; i++) {
     jupiter.incrementStepInTime()
 
-    if (jupiter.currentStateMatchesPreviousState()) {
+    if (jupiter.doesCurrentStateMatchPreviousState()) {
       return i
     }
   }
 
-  return 'done'
+  return (jupiter.getMoonStates())
+  // return 'done'
 }

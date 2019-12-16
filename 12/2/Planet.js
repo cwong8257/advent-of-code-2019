@@ -1,11 +1,7 @@
 class Planet {
-  constructor (name) {
+  constructor (name, moons) {
     this.name = name
-    this.moons = []
-  }
-
-  addMoons (moons) {
-    this.moons.push(...moons)
+    this.moons = [...moons]
   }
 
   incrementStepInTime() {
@@ -28,14 +24,28 @@ class Planet {
     this.moons.forEach((moon) => moon.applyVelocity())
   }
 
-  currentStateMatchesPreviousState () {
-    const currentState = this.getCurrentState()
+  doesCurrentStateMatchPreviousState () {
+    let result = true
 
-    return !!this.history[currentState]
+    for (let i = 0; i < this.moons.length; i++) {
+      const moon = this.moons[i]
+
+      if (!moon.doesCurrentStateMatchPreviousState()) {
+        result = false
+      }
+    }
+
+    return result
   }
 
-  getCurrentState () {
-    this.moons
+  getMoonStates () {
+    return this.moons.reduce((moons, { name, position, velocity }) => ({
+      ...moons,
+      [name]: {
+        position,
+        velocity
+      }
+    }), {})
   }
 }
 
