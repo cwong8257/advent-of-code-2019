@@ -9,7 +9,7 @@ class AmplifiedControllerSoftware {
     this.hasHalted = false
   }
 
-  setInstructionDetails(instruction) {
+  setInstructionDetails (instruction) {
     this.instructionOpcode = instruction[instruction.length - 1],
     this.parameterModes = instruction.substring(0, instruction.length - 2)
   }
@@ -54,17 +54,15 @@ class AmplifiedControllerSoftware {
   }
 
   handleInstruction () {
-    const index = this.integersIndex + 1
-
     switch (this.instructionOpcode) {
-      case '1': return this.add(this.parameterModes, index)
-      case '2': return this.multiply(this.parameterModes, index)
-      case '3': return this.input(index)
-      case '4': return this.output(index)
-      case '5': return this.jumpIfTrue(this.parameterModes, index)
-      case '6': return this.jumpIfFalse(this.parameterModes, index)
-      case '7': return this.lessThan(this.parameterModes, index)
-      case '8': return this.equals(this.parameterModes, index)
+      case '1': return this.add()
+      case '2': return this.multiply()
+      case '3': return this.input()
+      case '4': return this.output()
+      case '5': return this.jumpIfTrue()
+      case '6': return this.jumpIfFalse()
+      case '7': return this.lessThan()
+      case '8': return this.equals()
       default: break;
     }
   }
@@ -76,27 +74,26 @@ class AmplifiedControllerSoftware {
     this.hasHalted = false
   }
 
-  add (parameterModes, index) {
-    return this.handleBinaryOperation(parameterModes, index, (operand1, operand2) => operand1 + operand2)
+  add () {
+    return this.handleBinaryOperation((operand1, operand2) => operand1 + operand2)
   }
 
-  multiply (parameterModes, index) {
-    return this.handleBinaryOperation(parameterModes, index, (operand1, operand2) => operand1 * operand2)
+  multiply () {
+    return this.handleBinaryOperation((operand1, operand2) => operand1 * operand2)
   }
   
-  handleBinaryOperation (parameterModes, index, operation) {
-    const parameterModesIndex = parameterModes.length - 1
-    const parameter1 = this.integers[index]
-    const parameter2 = this.integers[index + 1]
-    const parameter3 = this.integers[index + 2]
-    const mode1 = parameterModes[parameterModesIndex]
-    const mode2 = parameterModes[parameterModesIndex - 1]
+  handleBinaryOperation (operation) {
+    const parameter1 = this.integers[this.integersIndex + 1]
+    const parameter2 = this.integers[this.integersIndex + 2]
+    const parameter3 = this.integers[this.integersIndex + 3]
+    const mode1 = this.parameterModes[this.parameterModes.length - 1]
+    const mode2 = this.parameterModes[this.parameterModes.length - 2]
     const operand1 = this.getActualValue(mode1, parameter1)
     const operand2 = this.getActualValue(mode2, parameter2)
     const result = operation(operand1, operand2)
     this.integers[parameter3] = result.toString()
     
-    return index + 3
+    return this.integersIndex + 4
   }
 
   getActualValue (mode = '0', parameter) {
@@ -107,43 +104,42 @@ class AmplifiedControllerSoftware {
     }
   }
 
-  input (index) {
+  input () {
     const inputValue = this.inputValues.shift()
-    const parameter = this.integers[index]
+    const parameter = this.integers[this.integersIndex + 1]
     this.integers[parameter] = inputValue.toString()
 
-    return index + 1
+    return this.integersIndex + 2
   }
 
-  output (index) {
-    const parameter = this.integers[index]
+  output () {
+    const parameter = this.integers[this.integersIndex + 1]
     this.outputValue = Number.parseInt(this.integers[parameter])
   
-    return index + 1
+    return this.integersIndex + 2
   }
 
-  jumpIfTrue (parameterModes, index) {
-    return this.jump(parameterModes, index, (value) => value !== 0)
+  jumpIfTrue () {
+    return this.jump((value) => value !== 0)
   }
 
-  jumpIfFalse (parameterModes, index) {
-    return this.jump(parameterModes, index, (value) => value === 0)
+  jumpIfFalse () {
+    return this.jump((value) => value === 0)
   }
 
-  lessThan (parameterModes, index) {
-    return this.compare(parameterModes, index, (value1, value2) => value1 < value2)
+  lessThan () {
+    return this.compare((value1, value2) => value1 < value2)
   }
 
-  equals(parameterModes, index) {
-    return this.compare(parameterModes, index, (value1, value2) => value1 === value2)
+  equals () {
+    return this.compare((value1, value2) => value1 === value2)
   }
 
-  jump (parameterModes, index, validateCondition) {
-    const parameterModesIndex = parameterModes.length - 1
-    const parameter1 = this.integers[index]
-    const parameter2 = this.integers[index + 1]
-    const mode1 = parameterModes[parameterModesIndex]
-    const mode2 = parameterModes[parameterModesIndex - 1]
+  jump (validateCondition) {
+    const parameter1 = this.integers[this.integersIndex + 1]
+    const parameter2 = this.integers[this.integersIndex + 2]
+    const mode1 = this.parameterModes[this.parameterModes.length - 1]
+    const mode2 = this.parameterModes[this.parameterModes.length - 2]
     const value1 = this.getActualValue(mode1, parameter1, this.integers)
     const value2 = this.getActualValue(mode2, parameter2, this.integers)
   
@@ -151,16 +147,15 @@ class AmplifiedControllerSoftware {
       return value2
     }
   
-    return index + 2
+    return this.integersIndex + 3
   }
 
-  compare (parameterModes, index, validateCondition) {
-    const parameterModesIndex = parameterModes.length - 1
-    const parameter1 = this.integers[index]
-    const parameter2 = this.integers[index + 1]
-    const parameter3 = this.integers[index + 2]
-    const mode1 = parameterModes[parameterModesIndex]
-    const mode2 = parameterModes[parameterModesIndex - 1]
+  compare (validateCondition) {
+    const parameter1 = this.integers[this.integersIndex + 1]
+    const parameter2 = this.integers[this.integersIndex + 2]
+    const parameter3 = this.integers[this.integersIndex + 3]
+    const mode1 = this.parameterModes[this.parameterModes.length - 1]
+    const mode2 = this.parameterModes[this.parameterModes.length - 2]
     const value1 = this.getActualValue(mode1, parameter1)
     const value2 = this.getActualValue(mode2, parameter2)
   
@@ -170,12 +165,8 @@ class AmplifiedControllerSoftware {
       this.integers[parameter3] = '0'
     }
   
-    return index + 3
+    return this.integersIndex + 4
   }
 }
-
-
-
-
 
 module.exports = AmplifiedControllerSoftware
